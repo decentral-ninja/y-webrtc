@@ -79,10 +79,25 @@ const onconnection = conn => {
     subscribedTopics.clear()
     closed = true
   })
+  // sst: added JSON.parse try/catch
+  conn.on('error', err => {
+    console.error('ws connection error', err)
+  })
+  // sst-->
   conn.on('message', /** @param {object} message */ message => {
-    if (typeof message === 'string' || message instanceof Buffer) {
-      message = JSON.parse(message)
+    // sst: added JSON.parse try/catch
+    try {
+      if (typeof message === 'string' || message instanceof Buffer) {
+        message = JSON.parse(message)
+      }
+    } catch (error) {
+      console.warn('Invalid JSON from WebSocket client:', err.message)
+      if (conn.readyState === wsReadyStateOpen) {
+        conn.close(1003, 'Invalid JSON')
+      }
+      return
     }
+    // sst-->
     if (message && message.type && !closed) {
       switch (message.type) {
         case 'subscribe':
@@ -122,6 +137,12 @@ const onconnection = conn => {
   })
 }
 wss.on('connection', onconnection)
+
+// sst: added error handling
+wss.on('error', err => {
+  console.error('wss error', err)
+})
+// sst-->
 
 server.on('upgrade', (request, socket, head) => {
   // You may check auth of request here..
