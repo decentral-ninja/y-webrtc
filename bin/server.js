@@ -80,8 +80,8 @@ const onconnection = conn => {
     closed = true
   })
   // sst: added JSON.parse try/catch
-  conn.on('error', err => {
-    console.error('ws connection error', err)
+  conn.on('error', error => {
+    console.error('ws connection error', error)
   })
   // sst-->
   conn.on('message', /** @param {object} message */ message => {
@@ -91,7 +91,7 @@ const onconnection = conn => {
         message = JSON.parse(message)
       }
     } catch (error) {
-      console.warn('Invalid JSON from WebSocket client:', err.message)
+      console.warn('Invalid JSON from WebSocket client:', error.message)
       if (conn.readyState === wsReadyStateOpen) {
         conn.close(1003, 'Invalid JSON')
       }
@@ -139,8 +139,8 @@ const onconnection = conn => {
 wss.on('connection', onconnection)
 
 // sst: added error handling
-wss.on('error', err => {
-  console.error('wss error', err)
+wss.on('error', error => {
+  console.error('wss error', error)
 })
 // sst-->
 
